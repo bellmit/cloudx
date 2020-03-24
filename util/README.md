@@ -1,0 +1,15 @@
+#### 公共工具类
+- AntPathMatcher: 依照Ant的路径匹配规则，主要服务于MVC框架的路径匹配
+- Base64: Base64工具类
+- CachedFileStream: 流文件
+- ClassUtil: 类反射工具
+- Encoder: 各场景下的字符串转义、解义操作
+- Encryptor: 数据加密工具类
+- FileUtil: 文件操作工具类
+- IoUtil: IO流操作工具类
+- JsonUtil: Json操作工具类
+- NetUtil: 网络网卡工具类
+- Pair: 配对工具类
+- Param: Json对象操作工具类，对Map进行功能包装
+- Table: Json数组操作工具类，对List进行功能包装
+- StrUtil: 字符串操作工具类
