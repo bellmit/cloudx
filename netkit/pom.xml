@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cloud</artifactId>
+        <groupId>cloud.apposs</groupId>
+        <version>1.1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>netkit</artifactId>
+    <version>1.1.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>util</artifactId>
+            <version>${cloud.apposs.util.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>logger</artifactId>
+            <version>${cloud.apposs.logger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>configure</artifactId>
+            <version>${cloud.apposs.configure.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>guard</artifactId>
+            <version>${cloud.apposs.guard.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

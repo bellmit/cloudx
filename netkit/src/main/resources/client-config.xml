@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<client-config>
+   	<!-- 业务名称，便于通过日志区分不同业务请求 -->
+   	<property name="name">whois query</property>
+   	<!-- 远程主机主机 -->
+   	<property name="host">whois.verisign-grs.com</property>
+   	<!-- 远程主机端口 -->
+    <property name="port">43</property>
+    <!-- 
+       	开启此参数，那么客户端在每次发送数据时，无论数据包的大小都会将这些数据发送出 去
+		参考：
+		http://blog.csdn.net/huang_xw/article/details/7340241
+		http://www.open-open.com/lib/view/open1412994697952.html
+	-->
+    <property name="tcpNoDelay">true</property>
+       
+    <!-- 日志相关配置 -->
+    <!-- 日志输出级别，可为FATAL（致命）、ERROR（错误）、WARN（警告）、INFO（信息）、DEBUG（调试）、TRACE（追踪）、OFF（关闭） -->
+    <property name="logLevel">trace</property>
+	<!-- 日志输出终端，可为CONSOLE（控制台）、FILE（文件）-->
+    <property name="logAppender">console</property>
+    <!-- 日志的存储路径 -->
+    <property name="logPath">res/log</property>
+    <!-- 日志输出模板 -->
+    <property name="logFormat">%d{yyyy-MM-dd HH:mm:ss} %F:%M:%L[%p] %m%n%e</property>
+</client-config>

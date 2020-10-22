@@ -2,10 +2,16 @@ package cloud.apposs.util;
 
 import cloud.apposs.util.IoUtil.LineProcessor;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
@@ -80,6 +86,33 @@ public final class FileUtil {
     }
 
     /**
+     * 读取文件文本内容
+     */
+    public static final String readString(InputStream inputStream) {
+        SysUtil.checkNotNull(inputStream);
+
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line);
+            }
+            return content.toString();
+        } catch (IOException e) {
+            return null;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
+    /**
      * 添加文件内容
      *
      * @param  content 文件内容
@@ -115,6 +148,30 @@ public final class FileUtil {
                     writer.close();
                 } catch (IOException e) {
                 }
+            }
+        }
+    }
+
+    public static final boolean write(byte[] content, File file) {
+        return write(content, file, false);
+    }
+
+    public static final boolean write(byte[] content, File file, boolean append) {
+        OutputStream fos = null;
+        try{
+            fos = new FileOutputStream(file, append);
+            fos.write(content);
+            fos.flush();
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        } finally{
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {}
             }
         }
     }

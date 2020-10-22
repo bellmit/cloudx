@@ -1,5 +1,8 @@
 package cloud.apposs.util;
 
+import cloud.apposs.util.JvmInformation.PrimitiveType;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -10,8 +13,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import cloud.apposs.util.JvmInformation.PrimitiveType;
 
 import static cloud.apposs.util.JvmInformation.CURRENT_JVM_INFORMATION;
 
@@ -82,7 +83,7 @@ public class ReflectUtil {
         Map<String, Method> methods = new ConcurrentHashMap<String, Method>();
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.getName().startsWith("set")) {
-                methods.put(SysUtil.lowerFirst(method.getName().substring(3)), method);
+                methods.put(StrUtil.lowerFirst(method.getName().substring(3)), method);
             }
         }
         return methods;
@@ -301,5 +302,15 @@ public class ReflectUtil {
             size += CURRENT_JVM_INFORMATION.getObjectAlignment() - (size % CURRENT_JVM_INFORMATION.getObjectAlignment());
         }
         return Math.max(size, CURRENT_JVM_INFORMATION.getMinimumObjectSize());
+    }
+
+    /**
+     * 判断注解是否相同
+     */
+    public static boolean isAnnotationEquals(Annotation a, Class<? extends Annotation> b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        return a.annotationType().isAssignableFrom(b);
     }
 }

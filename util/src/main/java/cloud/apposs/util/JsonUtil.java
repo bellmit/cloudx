@@ -213,8 +213,9 @@ public class JsonUtil {
      * 将Object输出成Json需要的格式内容
      *
      * @param format 是否格式化输出
+     * @param encode 是否HTML JSON内容，避免客户端利用xss攻击在输出数据时变成HTML标签给黑客利用来攻击
      */
-    public static String toJson(Object value, boolean format, int tab, String line) {
+    public static String toJson(Object value, boolean format, int tab, String line, boolean encode) {
         if (value == null) {
             return null;
         }
@@ -222,17 +223,21 @@ public class JsonUtil {
                 value instanceof Float || value instanceof Double ||
                 value instanceof Short || value instanceof Boolean) {
             return value.toString();
-        }
-        if (value instanceof String) {
+        } else if (value instanceof String) {
+            if (encode) {
+                return "\"" + Encoder.encodeHtml(value.toString()) + "\"";
+            }
+            return "\"" + encodeJson(value.toString()) + "\"";
+        } else if (value instanceof Param) {
+            return ((Param) value).toJson(format, tab, line, encode);
+        } else if (value instanceof Table<?>) {
+            return ((Table<?>) value).toJson(format, tab, line, encode);
+        } else {
+            if (encode) {
+                return "\"" + Encoder.encodeHtml(value.toString()) + "\"";
+            }
             return "\"" + encodeJson(value.toString()) + "\"";
         }
-        if (value instanceof Param) {
-            return ((Param) value).toJson(format, tab, line);
-        }
-        if (value instanceof Table<?>) {
-            return ((Table<?>) value).toJson(format, tab, line);
-        }
-        return "\"" + encodeJson(value.toString()) + "\"";
     }
 
     /**

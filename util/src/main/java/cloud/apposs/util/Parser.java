@@ -25,9 +25,9 @@ public class Parser {
 			return defaultValue;
 		}
 		value = value.trim().toLowerCase();
-		if (value.equalsIgnoreCase("true")) {
+		if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("on")) {
 			return true;
-		} else if (value.equalsIgnoreCase("false")) {
+		} else if (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("off")) {
 			return false;
 		}
 		return defaultValue;

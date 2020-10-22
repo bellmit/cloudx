@@ -2,6 +2,7 @@ package cloud.apposs.util;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
 
 /**
  * 各场景下的字符串转义、解义操作
@@ -187,8 +188,22 @@ public class Encoder {
         return Base64.encodeBytes(bytes);
     }
 
+    public static String encodeBase64(ByteBuffer buffer) {
+         return Base64.encodeBytes(buffer.array(), 0, buffer.limit());
+    }
+
     public static String encodeBase64String(String str) {
         return encodeBase64(str.getBytes());
+    }
+
+    public static String encodeBase64Url(ByteBuffer buffer) {
+        String base64 = encodeBase64(buffer);
+        return toBase64Url(base64);
+    }
+
+    public static String encodeBase64Url(byte[] bytes) {
+        String base64 = encodeBase64(bytes);
+        return toBase64Url(base64);
     }
 
     /**
@@ -210,6 +225,38 @@ public class Encoder {
             return null;
         }
         return new String(bytes);
+    }
+
+    public static String decodeBase64UrlString(String base64) {
+        byte[] bytes = decodeBase64Url(base64);
+        if (bytes == null) {
+            return null;
+        }
+        return new String(bytes);
+    }
+
+    public static byte[] decodeBase64Url(String base64) {
+        int len = base64.length();
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; ++i) {
+            char c = base64.charAt(i);
+            // 由于符号"*"在某些邮箱中，会被过滤掉，
+            // 这里采用用于URL的改进Base64变种，把"+"替换成"_"，decode时，把"_"替换回"+"
+            if (c == '_') {
+                sb.append('+');
+            } else if (c == '-') {
+                sb.append('/');
+            } else {
+                sb.append(c);
+            }
+        }
+        len = len % 4;
+        if (len != 0) {
+            for (int i = 0; i < 4 - len; ++i) {
+                sb.append('=');
+            }
+        }
+        return decodeBase64(sb.toString());
     }
 
     public static String encodeUrl(String url) {
@@ -272,5 +319,24 @@ public class Encoder {
         } catch (Exception e) {
         }
         return "";
+    }
+
+    private static String toBase64Url(String base64) {
+        int len = base64.length();
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; ++i) {
+            char c = base64.charAt(i);
+            if (c == '+') {
+                // 由于符号"*"在某些邮箱中，会被过滤掉，这里采用用于URL的改进Base64变种，把"+"替换成"_"
+                //sb.append('*');
+                sb.append('_');
+            } else if (c == '/') {
+                sb.append('-');
+            } else if (c == '=') {
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }

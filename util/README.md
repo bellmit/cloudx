@@ -13,3 +13,4 @@
 - Param: Json对象操作工具类，对Map进行功能包装
 - Table: Json数组操作工具类，对List进行功能包装
 - StrUtil: 字符串操作工具类
+- DataBuffer/DataCollector/DataDistribution: 数据响应95/90/85等多线统计

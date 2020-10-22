@@ -32,14 +32,6 @@ public class SysUtil {
         return arg;
     }
 
-    public static boolean isEmpty(String str) {
-        return str == null || str.trim().equals("");
-    }
-
-    public static String lowerFirst(String name) {
-        return name.substring(0, 1).toLowerCase() + name.substring(1);
-    }
-
     public static boolean isIP(String ip) {
         String num = "(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)";
         String regex = "^" + num + "\\." + num + "\\." + num + "\\." + num + "$";
