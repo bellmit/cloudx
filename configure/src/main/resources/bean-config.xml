@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean-config>
+    <!-- 基本配置 -->
+   	<property name="name">MyXmlBean</property>
+    <property name="id">10080</property>
+    <property name="courses">
+        <value>chinese</value>
+        <value>english</value>
+        <value>match</value>
+    </property>
+    <property name="scores">
+        <value key="chinese">85</value>
+        <value key="english">80</value>
+        <value key="match">95</value>
+    </property>
+
+    <!-- 熔断相关配置 -->
+    <property name="ruleList">
+        <value>
+            <!-- 规则类型 -->
+            <property name="type">FLOW</property>
+            <!-- 资源名称 -->
+            <property name="resource">flow_qps</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+            <property name="courses">
+                <value>chinese</value>
+                <value>english</value>
+                <value>match</value>
+            </property>
+        </value>
+        <value>
+            <!-- 规则类型 -->
+            <property name="type">FUSE</property>
+            <!-- 资源名称 -->
+            <property name="resource">fuse_avg_resptime</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+        </value>
+    </property>
+    <property name="ruleInfo">
+        <value key="flow_qps">
+            <!-- 规则类型 -->
+            <property name="type">FLOW</property>
+            <!-- 资源名称 -->
+            <property name="resource">flow_qps</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+        </value>
+        <value key="fuse_avg_resptime">
+            <!-- 规则类型 -->
+            <property name="type">FUSE</property>
+            <!-- 资源名称 -->
+            <property name="resource">fuse_avg_resptime</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+        </value>
+    </property>
+    
+    <!-- 日志相关配置 -->
+    <log>
+        <property name="path">/Log</property>
+        <property name="name">MyLogger</property>
+		<property name="levels">
+			<value>0</value>
+			<value>1</value>
+			<value>2</value>
+		</property>
+		<limit-config>
+			<property name="name">MyLimit</property>
+			<property name="id">110</property>
+		</limit-config>
+    </log>
+
+	<!-- Svr配置相关 -->
+	<svr>
+		<property name="user">WXUsrWay</property>
+        <property name="pwd">ABEFe%$F78!</property>
+	</svr>
+</bean-config>
