@@ -1,7 +1,5 @@
 package cloud.apposs.threadx;
 
-import cloud.apposs.threadx.ThreadService.ThreadContext;
-
 /**
  * 任务，用于执行用户自定义的操作
  */

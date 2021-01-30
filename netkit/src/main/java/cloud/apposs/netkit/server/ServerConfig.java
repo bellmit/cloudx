@@ -67,13 +67,18 @@ public class ServerConfig {
     private boolean debug;
 
     /**
+     * 服务编码
+     */
+    private String charset = "utf-8";
+
+    /**
      * 发送数据缓存默认分配内存大小
      */
     private int bufferSize = 2 * 1024;
     /**
      * 是否直接使用堆内存
      */
-    private boolean bufferDirect = true;
+    private boolean bufferDirect = false;
 
     /**
      * 是否保持服务器端长连接，不检查网络超时
@@ -114,7 +119,7 @@ public class ServerConfig {
     /**
      * 日志输出模板
      */
-    private String logFormat = "%d{yyyy-MM-dd HH:mm:ss} %P: %m%n%E";
+    private String logFormat = Logger.DEFAULT_LOG_FORMAT;
 
     public ServerConfig() {
     }
@@ -232,6 +237,14 @@ public class ServerConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
     public int getBufferSize() {

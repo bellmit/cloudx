@@ -1,41 +1,55 @@
 package cloud.apposs.util;
 
-public class Pair<F, S> {
-	private final F first;
-	private final S second;
-	
-	public Pair(F first, S second) {
-		this.first = first;
-		this.second = second;
-	}
+/**
+ * 双值对，主要用于处理结果不上一个值的情况
+ *
+ * @param <K> 第一个值
+ * @param <V> 第二个值
+ */
+public class Pair<K, V> {
+    private final K key;
+    private final V value;
 
-	public F first() {
-		return first;
-	}
+    public static <K, V> Pair<K, V> build(K key, V value) {
+        return new Pair<K, V>(key, value);
+    }
 
-	public S second() {
-		return second;
-	}
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Pair) {
-			return false;
-		}
-		
-		Pair<F, S> pair = (Pair<F, S>) obj;
-        if (pair == null) {
-        	return false;
+    public K key() {
+        return key;
+    }
+
+    public V value() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return key.hashCode() * 13 + (value == null ? 0 : value.hashCode());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        if (!first.equals(pair.first)) {
-        	return false;
+        if (obj instanceof Pair) {
+            Pair<K, V> pair = (Pair<K, V>) obj;
+            if (!key.equals(pair.key)) {
+                return false;
+            }
+            return value.equals(pair.value);
         }
-        return second.equals(pair.second);
-	}
+        return false;
+    }
 
-	@Override
-	public String toString() {
-		return first + "," + second;
-	}
+    @Override
+    public String toString() {
+        return key + "," + value;
+    }
 }

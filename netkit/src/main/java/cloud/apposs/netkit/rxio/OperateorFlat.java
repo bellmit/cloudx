@@ -5,7 +5,7 @@ import cloud.apposs.netkit.rxio.RxIo.OnSubscribe;
 import java.util.Iterator;
 
 /**
- * 需求进行前置条件判断的多个RxIo串行执行，
+ * 需要进行前置条件判断的多个RxIo串行执行，
  * 下一个串行执行的RxIo流会根据上一个执行的任务来判断是否执行，如果上一个流执行不符合结果则解决False失败处理，
  * 主要业务有：
  * 1. 订单下单，多个子系统串行执行，依赖上一任务的执行结果来决定是否执行下一任务
@@ -50,8 +50,8 @@ public class OperateorFlat<T> implements OnSubscribe<Boolean> {
 
         @Override
         public void onNext(T value) throws Exception {
-            boolean result = predicate.call(value);
-            if (result) {
+            boolean success = predicate.call(value);
+            if (success) {
                 // 该次请求验证成功，获取下一个请求继续执行
                 if (sequences.hasNext()) {
                     RxIo<? extends T> source = sequences.next();

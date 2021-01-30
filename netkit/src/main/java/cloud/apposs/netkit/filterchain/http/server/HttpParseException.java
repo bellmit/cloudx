@@ -2,7 +2,9 @@ package cloud.apposs.netkit.filterchain.http.server;
 
 import cloud.apposs.util.HttpStatus;
 
-public class HttpParseException extends Exception {
+import java.io.IOException;
+
+public class HttpParseException extends IOException {
 	private static final long serialVersionUID = -9002784692607064187L;
 	
 	private final HttpStatus status;

@@ -202,7 +202,7 @@ public interface ThreadService extends Executor {
     /**
      * 线程池上下文，所有资源全线程池共享
      */
-    interface ThreadContext {
+    interface IThreadContext {
     	/**
     	 * 获取线程池
     	 * 

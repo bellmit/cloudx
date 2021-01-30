@@ -9,8 +9,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import cloud.apposs.threadx.ThreadService.ThreadContext;
-
 /**
  * 线程池异步任务模型，
  * 支持阻塞等待执行结果，或者以添加监听回调的方式获取任务执行结果

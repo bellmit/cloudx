@@ -16,9 +16,9 @@ public class TestPackageCalculator {
     @Test
     public void testGetStraceTraceFrames() {
         PackageCalculator pc = new PackageCalculator();
-        String string = pc.printStraceTraceFrames(new Throwable().getStackTrace());
+        String string = pc.printStraceTraceFrames(new Throwable());
         Assert.assertNotNull(string);
-        String[] frames = pc.getStraceTraceFrames(new Throwable().getStackTrace());
+        String[] frames = pc.getStraceTraceFrames(new IllegalArgumentException("custom exception"));
         Assert.assertTrue(frames.length > 0);
     }
 }

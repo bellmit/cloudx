@@ -35,6 +35,17 @@ public final class EventLoopGroup {
         this(size, DEFAULT_LOOP_NAME, keepAlive);
     }
 
+    public EventLoopGroup(int size, String name) {
+        this(size, name, false);
+    }
+
+    /**
+     * 构造轮询池管理器
+     *
+     * @param size 轮询池大小
+     * @param name 每个轮询线程的名称，建议自定义方便进行JSTACK调试
+     * @param keepAlive 轮询线程是否对每个SOCKET保持长连接，不做超时关闭，主要服务于长连接请求
+     */
     public EventLoopGroup(int size, String name, boolean keepAlive) {
         if (size <= 0) {
             throw new IllegalArgumentException("size");

@@ -250,7 +250,7 @@ public class TestProtoBuf {
         list.add(1);
         list.add(-1008912);
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, Integer.class);
+        ProtoSchema schema = ProtoSchema.listSchema(Integer.class);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
@@ -265,7 +265,7 @@ public class TestProtoBuf {
         list.add("Hello");
         list.add("Words");
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, String.class);
+        ProtoSchema schema = ProtoSchema.listSchema(String.class);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
@@ -283,7 +283,7 @@ public class TestProtoBuf {
         list.add(p1);
         list.add(p2);
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, Product1.class);
+        ProtoSchema schema = ProtoSchema.listSchema(Product1.class);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
@@ -309,7 +309,7 @@ public class TestProtoBuf {
         list.add(data);
         list.add(data2);
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, Map.class, schema0);
+        ProtoSchema schema = ProtoSchema.listSchema(Map.class, schema0);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
@@ -339,7 +339,7 @@ public class TestProtoBuf {
         list.add(data);
         list.add(data2);
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, Map.class, schema0);
+        ProtoSchema schema = ProtoSchema.listSchema(Map.class, schema0);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
@@ -347,8 +347,8 @@ public class TestProtoBuf {
         System.out.println(list2);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
+    @SuppressWarnings("unchecked")
     public void testPutList6() throws Exception {
         List list = new ArrayList();
 
@@ -371,23 +371,12 @@ public class TestProtoBuf {
         list.add(product);
         list.add(product2);
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, Product2.class);
+        ProtoSchema schema = ProtoSchema.getSchema(List.class, Product2.class);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);
         List list2 = (List) buffer.getList(schema);
         System.out.println(list2);
-    }
-
-    @Test
-    public void testPutList7() throws Exception {
-        List<Integer> value = new ArrayList<Integer>();
-        value.add(100);
-        value.add(879);
-        ProtoBuf buffer = ProtoBuf.allocate();
-        ProtoSchema schema = ProtoSchema.getSchema(ArrayList.class);
-        buffer.putObject(value, schema);
-        System.out.println(buffer.getObject(ArrayList.class, schema));
     }
 
     @SuppressWarnings("unchecked")
@@ -427,7 +416,7 @@ public class TestProtoBuf {
         list.add("Hello123");
         list.add("Wordss");
 
-        ProtoSchema schema = ProtoSchema.getSchema(list, String.class);
+        ProtoSchema schema = ProtoSchema.getSchema(List.class, String.class);
 
         ProtoBuf buffer = ProtoBuf.allocate();
         buffer.putList(list, schema);

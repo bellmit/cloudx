@@ -19,21 +19,24 @@ public final class PackageCalculator {
     private final Map<String, ClassPackageData> packageCache = new HashMap<String, ClassPackageData>();
 
     /**
-     * 打印堆栈信息
+     * 输出打印堆栈信息
      *
-     * @param elements 异常堆栈
+     * @param throwable 异常
      */
-    public String printStraceTraceFrames(StackTraceElement[] elements) {
-        if (elements == null) {
+    public String printStraceTraceFrames(Throwable throwable) {
+        if (throwable == null) {
             return null;
         }
 
         try {
+            StackTraceElement[] elements = throwable.getStackTrace();
             StringBuilder builder = new StringBuilder(256);
+            builder.append(throwable).append(CRLF);
             for (int i = 0; i < elements.length; i++) {
                 StackTraceElement element = elements[i];
                 ClassPackageData packageData = calculateByExactType(Class.forName(element.getClassName()));
-                builder.append("\tat ").append(element).append(" [").append(packageData).append("]").append(CRLF);
+                builder.append("\tat ").append(element)
+                        .append(" [").append(packageData.getLocation()).append("]").append(CRLF);
             }
             return builder.toString();
         } catch (Exception e) {
@@ -44,22 +47,26 @@ public final class PackageCalculator {
     /**
      * 获取堆栈信息
      *
-     * @param elements 异常堆栈
+     * @param throwable 异常
      */
-    public String[] getStraceTraceFrames(StackTraceElement[] elements) {
-        if (elements == null) {
+    public String[] getStraceTraceFrames(Throwable throwable) {
+        if (throwable == null) {
             return null;
         }
 
         try {
-            String[] straceTraceFrames = new String[elements.length];
+            StackTraceElement[] elements = throwable.getStackTrace();
+            String[] straceTraceFrames = new String[elements.length + 1];
             StringBuilder builder = new StringBuilder(32);
+            builder.append(throwable);
+            straceTraceFrames[0] = builder.toString();
             for (int i = 0; i < elements.length; i++) {
                 StackTraceElement element = elements[i];
                 ClassPackageData packageData = calculateByExactType(Class.forName(element.getClassName()));
                 builder.setLength(0);
-                builder.append(element).append(" [").append(packageData).append("]").append(CRLF);
-                straceTraceFrames[i] = builder.toString();
+                builder.append(element).append(" [")
+                        .append(packageData.getLocation()).append("]").append(CRLF);
+                straceTraceFrames[i + 1] = builder.toString();
             }
             return straceTraceFrames;
         } catch (Exception e) {

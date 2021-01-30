@@ -224,7 +224,7 @@ public final class CachedFileStream {
      * @return 成功写入文件的字节数
      */
     public long transfer(File dstFile, boolean checkExists) throws IOException {
-        if (dstFile == null || !dstFile.isFile()) {
+        if (dstFile == null) {
             throw new IllegalArgumentException("dstFile");
         }
         if (checkExists && dstFile.exists()) {
@@ -309,7 +309,7 @@ public final class CachedFileStream {
      * @return 成功写入文件的字节数
      */
     public long rename(File dstFile, boolean checkExists) throws IOException {
-        if (dstFile == null || !dstFile.isFile()) {
+        if (dstFile == null) {
             throw new IllegalArgumentException("dstFile");
         }
         if (checkExists && dstFile.exists()) {
@@ -391,6 +391,17 @@ public final class CachedFileStream {
 
     public void flush() throws IOException {
         stream.flush();
+    }
+
+    /**
+     * 重置缓冲状态，以应付同一个实例的数据重复读取写入
+     */
+    public void reset() throws IOException {
+        if (isInMemory()) {
+            ((ByteArrayOutputStream) stream).reset();
+        } else {
+            stream = new FileOutputStream(file);
+        }
     }
 
     public void close() {

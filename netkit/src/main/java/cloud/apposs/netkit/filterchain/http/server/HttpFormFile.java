@@ -33,6 +33,13 @@ public final class HttpFormFile {
     }
 
     /**
+     * 获取表单文件大小
+     */
+    public long size() {
+        return cachefile.size();
+    }
+
+    /**
      * 添加文件数据
      */
     public void write(byte[] buffer) throws IOException {

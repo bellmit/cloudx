@@ -396,6 +396,10 @@ public class EventLoop extends Thread {
                 processor.getListenerSupport().fireChannelClose(processor);
             }
         } catch (Throwable t) {
+            if (key != null) {
+                key.cancel();
+                key.attach(null);
+            }
             t.printStackTrace();
         }
     }

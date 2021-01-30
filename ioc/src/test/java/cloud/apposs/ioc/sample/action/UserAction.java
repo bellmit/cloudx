@@ -1,13 +1,13 @@
 package cloud.apposs.ioc.sample.action;
 
 import cloud.apposs.ioc.annotation.Component;
-import cloud.apposs.ioc.annotation.Inject;
+import cloud.apposs.ioc.annotation.Autowired;
 import cloud.apposs.ioc.sample.bean.IProductBean;
 import cloud.apposs.ioc.sample.bean.UserBean;
 
 @Component
 public class UserAction {
-    @Inject
+    @Autowired
     private UserBean user;
 
     private IProductBean product;
@@ -22,7 +22,7 @@ public class UserAction {
         return product;
     }
 
-    @Inject
+    @Autowired
     public void setProduct(IProductBean product) {
         this.product = product;
     }
@@ -30,7 +30,7 @@ public class UserAction {
     /**
      * 同时注入两个参数到方法中
      */
-    @Inject
+    @Autowired
     public void setUserProduct(UserBean user, IProductBean product) {
         this.userProduct = user + ":" + product;
     }

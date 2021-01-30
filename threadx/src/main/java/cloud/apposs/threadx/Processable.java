@@ -1,7 +1,5 @@
 package cloud.apposs.threadx;
 
-import cloud.apposs.threadx.ThreadService.ThreadContext;
-
 /**
  * 任务，用于执行用户自定义的操作，
  * 相对于Runnable接口，该任务接口能够支持线程池上下文和完成/异常监听

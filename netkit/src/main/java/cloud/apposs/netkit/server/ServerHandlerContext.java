@@ -29,7 +29,7 @@ public final class ServerHandlerContext {
         return processor.getEvent();
     }
 
-    public IoProcessor getP() {
+    public IoProcessor getProcessor() {
         return processor;
     }
 
@@ -81,19 +81,8 @@ public final class ServerHandlerContext {
         return processor.getAttribute(key, defaultVal);
     }
 
-    /**
-     * 立刻触发EventLoop发送操作，
-     * 主要服务于RxIo异步，
-     * 因为RxIo的异步性，当前Server所在的EventLoop是其中一个线程，但RxIo中的EventLoop又是另外一个线程，
-     * 所以不触发write写事件则当前Server的EventLoop线程是不会主动触发发送事件的
-     */
     public final void flush() {
-        // 如果有数据要发送，注册发送事件
-        if (!processor.getWriteRequest().isEmpty()) {
-            final IoEvent event = processor.getEvent();
-            final SelectionKey key = processor.selectionKey();
-            IoEvent.registSelectionKeyEvent(event, key, IoEvent.OP_WRITE);
-        }
+        processor.flush();
     }
 
     public final void close() {

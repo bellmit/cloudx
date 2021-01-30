@@ -182,13 +182,14 @@ public final class StrUtil {
     }
 
     public static String formatByteOutput(long bytes) {
-        if (bytes > 1024 * 1024 * 1024) {
-            return (bytes / (1024 * 1024 * 1024)) + " GB";
-        } else if (bytes > 1024 * 1024) {
-            return (bytes / (1024 * 1024)) + " MB";
-        } else if (bytes > 1024) {
-            return (bytes / 1024) + " KB";
+        String[] ua = {"B", "KB", "MB", "GB", "TB", "PB"};
+        long v = bytes;
+        for (int i = 0; i < ua.length; i ++) {
+            if (v < 1024L) {
+                return String.format("%d%s", v, ua[i]);
+            }
+            v >>= 10L;
         }
-        return bytes + " Bytes";
+        return String.format("%d%s", bytes, ua[0]);
     }
 }

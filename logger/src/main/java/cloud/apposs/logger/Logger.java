@@ -9,6 +9,9 @@ import java.util.Properties;
  * @date 2013.04.30
  */
 public class Logger {
+    /** 日志输出模板 */
+    public static final String DEFAULT_LOG_FORMAT = "%d{yyyy-MM-dd HH:mm:ss} %P: %m%n%E";
+
     private static Log log;
 
     public static void config(String configFile) {

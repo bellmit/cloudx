@@ -24,7 +24,6 @@ public class PackageTraceFormatter extends Formatter {
         if (throwable == null) {
             return null;
         }
-        StackTraceElement[] strackTrace = throwable.getStackTrace();
-        return pkgCal.printStraceTraceFrames(strackTrace);
+        return pkgCal.printStraceTraceFrames(throwable);
     }
 }

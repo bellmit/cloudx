@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bootor-config>
+    <!-- 基础配置 -->
+    <!-- 扫描基础包，必须配置，框架会自动扫描Controller注解类 -->
+    <property name="basePackage">cloud.apposs.bootor.sample</property>
+    <!-- 项目输入输出编码 -->
+    <property name="charset">utf-8</property>
+    <!-- 绑定主机和端口 -->
+    <property name="host">0.0.0.0</property>
+    <property name="port">8880</property>
+    <!-- 当前服务是否为只读 -->
+    <property name="readOnly">false</property>
+    <!-- 是否启用框架内部监听 -->
+    <property name="monitorActive">true</property>
+
+    <!-- 异步HTTP请求组件 -->
+    <okhttp>
+        <!-- 是否开启OkHttp异步请求注入 -->
+        <property name="enable">true</property>
+        <!-- 异步轮询器数量 -->
+        <property name="loopSize">6</property>
+        <!-- 异步HTTP请求的服务发现类型，有QConf/Zookeeper/File -->
+        <property name="discoveryType">File</property>
+        <property name="discoveryArgs">
+            <value>E:/Backup/zk.conf</value>
+        </property>
+        <!-- 指定ServiceId的负载均衡规则 -->
+        <property name="balancer">
+            <!-- 指定serviceid为socks_proxy的请求代理策略 -->
+            <value key="socks_proxy">
+                <!-- 负载均衡模式 -->
+                <property name="rule">RoundRobin</property>
+                <!-- 线路检测模式 -->
+                <property name="ping">NoPing</property>
+            </value>
+            <!-- 指定serviceid为wxapi_proxy的请求代理策略 -->
+            <value key="wxapi_proxy">
+                <property name="rule">RoundRobin</property>
+                <property name="ping">NoPing</property>
+            </value>
+        </property>
+    </okhttp>
+
+    <!-- 日志相关配置 -->
+    <!-- 日志输出级别，可为FATAL（致命）、ERROR（错误）、WARN（警告）、INFO（信息）、DEBUG（调试）、TRACE（追踪）、OFF（关闭） -->
+    <property name="logLevel">trace</property>
+    <!-- 日志输出终端，可为CONSOLE（控制台）、FILE（文件）-->
+    <property name="logAppender">console</property>
+    <!-- 日志的存储路径，前提是logAppender配置为FILE -->
+    <property name="logPath">res/logs</property>
+    <!-- 日志输出模板 -->
+    <property name="logFormat">%d{yyyy-MM-dd HH:mm:ss} %P: %m%n%E</property>
+
+    <!-- 服务注册相关配置 -->
+    <registry>
+        <!-- 是否启动服务注册，便于客户端服务发现和负载均衡 -->
+        <property name="enableRegistry">false</property>
+        <!-- 服务注册的类型，有ZOOKEEPER/CURATOR等 -->
+        <property name="registryType">CURATOR</property>
+        <!-- 配置中心URL，一般是zookeeper的配置地址 -->
+        <property name="registryUrl">192.168.1.6:2081</property>
+        <property name="registryInterface">eth3</property>
+        <property name="serviceId">micro_application1</property>
+    </registry>
+
+    <!-- 熔断相关配置 -->
+    <property name="rules">
+        <value>
+            <!-- 规则类型 -->
+            <property name="type">FLOW</property>
+            <!-- 资源名称 -->
+            <property name="resource">flow_qps</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+        </value>
+        <value>
+            <!-- 规则类型 -->
+            <property name="type">FUSE</property>
+            <!-- 资源名称 -->
+            <property name="resource">fuse_avg_resptime</property>
+            <!-- 限流阀值 -->
+            <property name="threshold">20</property>
+        </value>
+    </property>
+
+    <!--
+        数据源相关配置，支持多数据源配置，适用场景：
+        1、固定数据存储用mysql源存储，文本存储用es源存储，便于文档可通过ES快速检索
+        2、主从数据库读写分离，写用主库，读用从库，减少数据库压力，提升读性能
+     -->
+    <property name="resources">
+        <!-- 读数据库 -->
+        <value key="default">
+            <property name="dialect">MySQL</property>
+            <property name="cache">Jvm</property>
+            <dbpool>
+                <property name="jdbcUrl">
+                    <![CDATA[jdbc:mysql://172.17.2.30:9090/acct?useUnicode=true&characterEncoding=UTF8&connectTimeout=1000&socketTimeout=3000]]>
+                </property>
+                <property name="username">dba</property>
+                <property name="password">DB@0nline</property>
+            </dbpool>
+        </value>
+        <!-- 写数据库 -->
+        <value key="writable">
+            <property name="dialect">MySQL</property>
+            <property name="cache">Jvm</property>
+            <dbpool>
+                <property name="jdbcUrl">
+                    <![CDATA[jdbc:mysql://192.168.1.8:9090/acct?useUnicode=true&characterEncoding=UTF8&connectTimeout=1000&socketTimeout=3000]]>
+                </property>
+                <property name="username">dba</property>
+                <property name="password">DB@0nline</property>
+            </dbpool>
+        </value>
+    </property>
+
+    <!-- 业务自定义相关配置 -->
+    <options>
+        <property name="serviceName">MyCustomOption</property>
+        <property name="lockLength">1000</property>
+    </options>
+</bootor-config>

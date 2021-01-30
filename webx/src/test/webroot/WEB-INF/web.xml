@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	<welcome-file-list>
+        <welcome-file>index</welcome-file>
+    </welcome-file-list>
+
+    <!-- 防XSS攻击过滤器-->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>cloud.apposs.webx.CorsFilter</filter-class>
+        <async-supported>true</async-supported>
+        <!-- 是否开启XSS自动拦截 -->
+        <init-param>
+            <param-name>enable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <!-- 配置允许请求过来的跨域域名，默认为*即全部允许 -->
+        <init-param>
+            <param-name>allowOrigin</param-name>
+            <param-value>172.17.2.11, 127.0.0.1</param-value>
+        </init-param>
+        <!-- 配置允许的请求METHOD -->
+        <init-param>
+            <param-name>allowMethods</param-name>
+            <param-value>POST, GET, PUT, OPTIONS, DELETE</param-value>
+        </init-param>
+        <!-- 配置允许的请求HEADER -->
+        <init-param>
+            <param-name>allowHeaders</param-name>
+            <param-value>Origin, X-Requested-With, X-Auth-Token, Content-Type, Accept</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 防XSS攻击过滤器-->
+    <!--<filter>-->
+        <!--<filter-name>XssFilter</filter-name>-->
+        <!--<filter-class>cloud.apposs.webx.XssFilter</filter-class>-->
+        <!--<async-supported>true</async-supported>-->
+        <!--<init-param>-->
+            <!--&lt;!&ndash; 是否开启XSS自动拦截 &ndash;&gt;-->
+            <!--<param-name>enable</param-name>-->
+            <!--<param-value>true</param-value>-->
+        <!--</init-param>-->
+    <!--</filter>-->
+    <!--<filter-mapping>-->
+        <!--<filter-name>XssFilter</filter-name>-->
+        <!--<url-pattern>/*</url-pattern>-->
+    <!--</filter-mapping>-->
+
+    <!-- 异常过滤器 ，如果WebX框架有配置异常拦截注解则不用此过滤器-->
+    <!-- 
+    <filter>
+        <filter-name>WebExceptionFilter</filter-name>
+        <filter-class>cloud.apposs.webx.WebExceptionFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+    <filter-mapping>
+        <filter-name>WebExceptionFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    -->
+
+	<!-- 配置WebX核心拦截器 -->
+    <filter>
+        <filter-name>WebX</filter-name>
+        <filter-class>cloud.apposs.webx.WebXDispatcherFilter</filter-class>
+        <async-supported>true</async-supported>
+        <!-- 配置的WebX框架配置文件路径，如果没有配置则默认用[filter-name]-mvc.xml作为配置读取 -->
+        <init-param>
+            <param-name>configLocation</param-name>
+		    <param-value>/WEB-INF/webx-mvc.xml</param-value>
+		</init-param>
+		<!-- 业务方可配置的WebX框架配置实现类，实现框架文件零配置 -->
+		<!--
+		<init-param>
+            <param-name>configClass</param-name>
+            <param-value>com.webx.mvc.WebXConfig</param-value>
+        </init-param>
+        -->
+    </filter>
+    <filter-mapping>
+        <!-- 配置所有请求均通过WEBX框架来处理 -->
+        <filter-name>WebX</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>

@@ -38,6 +38,8 @@ import cloud.apposs.util.Errno;
 import cloud.apposs.util.FileUtil;
 import cloud.apposs.util.Pair;
 import cloud.apposs.util.StandardResult;
+import cloud.apposs.util.Table;
+import javafx.scene.control.Tab;
 import org.junit.Test;
 
 import java.io.File;
@@ -865,14 +867,14 @@ public class TestRxIo {
     @Test
     public void testRxIoIterator() throws Exception {
         List<Pair<Integer, String>> dataList = new LinkedList<Pair<Integer, String>>();
-        dataList.add(new Pair<Integer, String>(1, "one"));
-        dataList.add(new Pair<Integer, String>(2, "two"));
-        dataList.add(new Pair<Integer, String>(3, "three"));
+        dataList.add(Pair.build(1, "one"));
+        dataList.add(Pair.build(2, "two"));
+        dataList.add(Pair.build(3, "three"));
         RxIo.from(dataList)
             .map(new IoFunction<Pair<Integer,String>, String>() {
                 @Override
                 public String call(Pair<Integer, String> t) throws Exception {
-                    return "AA:" + t.first() + "-" + t.second();
+                    return "AA:" + t.key() + "-" + t.value();
                 }
             }).subscribe(new IoSubscriber<String>() {
             @Override
@@ -1437,6 +1439,48 @@ public class TestRxIo {
             }
         }).start();
         latch.await();
+    }
+
+    @Test
+    public void testRxIoRollback() throws Exception {
+        Table t = new Table();
+        System.out.println(t.getClass().isAssignableFrom(List.class));
+//        final CountDownLatch latch = new CountDownLatch(1);
+//        RxIo.create(new RxIo.OnSubscribe<StandardResult>() {
+//            @Override
+//            public void call(SafeIoSubscriber<? super StandardResult> t) throws Exception {
+////                int i = 1 / 0;
+////                t.onNext(StandardResult.success("Hello result"));
+//                t.onNext(StandardResult.error(Errno.ERROR));
+//                t.onCompleted();
+//            }
+//        }).rollbackIfError(new IoFunction<StandardResult, StandardResult>() {
+//            @Override
+//            public StandardResult call(StandardResult result) throws Exception {
+//                // 只有当返回结果为StandardResult.isError或者上游抛出异常时才会触发rollback回滚操作
+//                // 回滚操作结束后再返回另外包装的结果
+//                System.out.println("Fail In: " + result);
+//                return StandardResult.success("Rollback In");
+//            }
+//        }).subscribe(new IoSubscriber<StandardResult>() {
+//            @Override
+//            public void onNext(StandardResult value) throws Exception {
+//                System.out.println(value.toJson());
+//            }
+//
+//            @Override
+//            public void onCompleted() {
+//                System.out.println("----------------- Request Complete -----------------");
+//                latch.countDown();
+//            }
+//
+//            @Override
+//            public void onError(Throwable cause) {
+//                System.err.println("Exception Caught");
+//                cause.printStackTrace();
+//            }
+//        }).start();
+//        latch.await();
     }
 
     /**

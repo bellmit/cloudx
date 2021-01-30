@@ -4,7 +4,7 @@ package cloud.apposs.threadx;
  * 线程池工厂，负责创建不同功能的线程池
  */
 public class ThreadPoolFactory {
-	private static final int MAX_THREAD_NUM = Short.MAX_VALUE;
+	private static final int MAX_THREAD_NUM = Byte.MAX_VALUE;
 
     private ThreadPoolFactory() {
     }
@@ -18,8 +18,24 @@ public class ThreadPoolFactory {
         return new ThreadPool(Runtime.getRuntime().availableProcessors(), MAX_THREAD_NUM);
     }
 
+    /**
+     * 创建线程池
+     *
+     * @param threadFactory 自定义线程创建工厂，方便通过jstack查看线程信息
+     * @return
+     */
     public static ThreadPool createCachedThreadPool(ThreadFactory threadFactory) {
         return new ThreadPool(Runtime.getRuntime().availableProcessors(), MAX_THREAD_NUM, threadFactory);
+    }
+
+    /**
+     * 创建线程池
+     *
+     * @param threadNamePrefix 线程名前缀，方便通过jstack查看线程信息
+     */
+    public static ThreadPool createCachedThreadPool(String threadNamePrefix) {
+        return new ThreadPool(Runtime.getRuntime().availableProcessors(),
+                MAX_THREAD_NUM, new DefaultThreadFactory(threadNamePrefix));
     }
 
     /**

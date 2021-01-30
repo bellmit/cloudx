@@ -46,12 +46,13 @@ public class OnSubscribeRetry<T> implements OnSubscribe<T> {
             try {
                 RxIo<T> source = handler.call(cause);
                 if (source == null) {
+                    // 重试方法判断超过一次次数返回null，不再重试
                     actual.onError(cause);
                 } else {
+                    // 出错继续触发数据响应重试
                     source.subscribe(this).start();
                 }
-            } catch (Throwable e) {
-                actual.onError(e);
+            } catch (Exception ignore) {
             }
         }
     }

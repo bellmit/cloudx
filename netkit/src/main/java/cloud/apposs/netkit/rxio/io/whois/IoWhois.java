@@ -24,27 +24,26 @@ import java.util.Map.Entry;
  * Whois异步网络查询，查询返回的数据为String类型
  */
 public class IoWhois extends AbstractIoProcessor {
-	private static Map<String, Pair<String, String>> WHOIS_REGISTRY =
-		new HashMap<String, Pair<String, String>>();
+	private static Map<String, Pair<String, String>> WHOIS_REGISTRY = new HashMap<String, Pair<String, String>>();
 	static {
-		WHOIS_REGISTRY.put(".com", new Pair<String, String>("whois.internic.net", "no match"));
-		WHOIS_REGISTRY.put(".net", new Pair<String, String>("whois.internic.net", "no match"));
-		WHOIS_REGISTRY.put(".edu", new Pair<String, String>("whois.internic.net", "no match"));
-		WHOIS_REGISTRY.put(".org", new Pair<String, String>("whois.publicinterestregistry.net", "not found"));
-		WHOIS_REGISTRY.put(".cn", new Pair<String, String>("whois.cnnic.cn", "no matching"));
-		WHOIS_REGISTRY.put(".cc", new Pair<String, String>("whois.nic.cc", "no match"));
-		WHOIS_REGISTRY.put(".co", new Pair<String, String>("whois.nic.co", "not found"));
-		WHOIS_REGISTRY.put(".biz", new Pair<String, String>("whois.neulevel.biz", "not found"));
-		WHOIS_REGISTRY.put(".pro", new Pair<String, String>("whois.registrypro.pro", "not found"));
-		WHOIS_REGISTRY.put(".mobi", new Pair<String, String>("whois.dotmobiregistry.net", "not found"));
-		WHOIS_REGISTRY.put(".me", new Pair<String, String>("whois.nic.me", "not found"));
-		WHOIS_REGISTRY.put(".in", new Pair<String, String>("whois.inregistry.in", "not found"));
-		WHOIS_REGISTRY.put(".uk", new Pair<String, String>("whois.nic.uk", "no match"));
-		WHOIS_REGISTRY.put(".us", new Pair<String, String>("whois.nic.us", "no found"));
-		WHOIS_REGISTRY.put(".info", new Pair<String, String>("whois.afilias.info", "no found"));
-		WHOIS_REGISTRY.put(".de", new Pair<String, String>("whois.denic.de", "no found"));
-		WHOIS_REGISTRY.put(".ca", new Pair<String, String>("whois.cira.ca", "no found"));
-		WHOIS_REGISTRY.put(".top", new Pair<String, String>("whois.internic.net", "no match"));
+		WHOIS_REGISTRY.put(".com", Pair.build("whois.internic.net", "no match"));
+		WHOIS_REGISTRY.put(".net", Pair.build("whois.internic.net", "no match"));
+		WHOIS_REGISTRY.put(".edu", Pair.build("whois.internic.net", "no match"));
+		WHOIS_REGISTRY.put(".org", Pair.build("whois.publicinterestregistry.net", "not found"));
+		WHOIS_REGISTRY.put(".cn", Pair.build("whois.cnnic.cn", "no matching"));
+		WHOIS_REGISTRY.put(".cc", Pair.build("whois.nic.cc", "no match"));
+		WHOIS_REGISTRY.put(".co", Pair.build("whois.nic.co", "not found"));
+		WHOIS_REGISTRY.put(".biz", Pair.build("whois.neulevel.biz", "not found"));
+		WHOIS_REGISTRY.put(".pro", Pair.build("whois.registrypro.pro", "not found"));
+		WHOIS_REGISTRY.put(".mobi", Pair.build("whois.dotmobiregistry.net", "not found"));
+		WHOIS_REGISTRY.put(".me", Pair.build("whois.nic.me", "not found"));
+		WHOIS_REGISTRY.put(".in", Pair.build("whois.inregistry.in", "not found"));
+		WHOIS_REGISTRY.put(".uk", Pair.build("whois.nic.uk", "no match"));
+		WHOIS_REGISTRY.put(".us", Pair.build("whois.nic.us", "no found"));
+		WHOIS_REGISTRY.put(".info", Pair.build("whois.afilias.info", "no found"));
+		WHOIS_REGISTRY.put(".de", Pair.build("whois.denic.de", "no found"));
+		WHOIS_REGISTRY.put(".ca", Pair.build("whois.cira.ca", "no found"));
+		WHOIS_REGISTRY.put(".top", Pair.build("whois.internic.net", "no match"));
 	}
 	public static final int WHOIS_PORT = 43;
 	public static final String CHARSET = "utf-8";
@@ -100,7 +99,7 @@ public class IoWhois extends AbstractIoProcessor {
 		if (info == null || registry == null) {
 			return false;
 		}
-		String nomatch = registry.second();
+		String nomatch = registry.value();
 		return !info.toLowerCase().contains(nomatch);
 	}
 
@@ -116,7 +115,7 @@ public class IoWhois extends AbstractIoProcessor {
 			throw new IOException("domain " + domain + " whois server not found");
 		}
 		InetSocketAddress addr = new InetSocketAddress(
-				InetAddress.getByName(registry.first()), WHOIS_PORT);
+				InetAddress.getByName(registry.key()), WHOIS_PORT);
 		
 		// 判断是否使用代理，用代理则需要重写连接地址
 		if (proxy != null) {

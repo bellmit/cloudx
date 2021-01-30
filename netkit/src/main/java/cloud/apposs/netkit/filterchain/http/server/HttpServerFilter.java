@@ -20,8 +20,6 @@ import java.util.Map;
  */
 public class HttpServerFilter extends IoFilterAdaptor {
     public static final String FILTER_CONTEXT = "HttpServerFilterContext";
-    public static final float HTTP_PROTOCOL_1_0 = 1.0F;
-    public static final float HTTP_PROTOCOL_1_1 = 1.1F;
 
     /**
      * 是否将HTTP请求的HEADER KEY自动转换成小写，便于提升性能
@@ -62,13 +60,11 @@ public class HttpServerFilter extends IoFilterAdaptor {
             return;
         }
 
-        // 更新会话时间，避免当上传HTTP大文件时超时
-        processor.setActionTime(System.currentTimeMillis());
         // 解析HEADER请求数据
         IoBuffer buffer = (IoBuffer) message;
         Context context = getContext(processor);
         // 解析HEADER数据已经结束，但仍然有数据进来，
-        // 可能是POST BODY数据还没解析，直接交给下一个过滤器处理
+        // 可能是POST BODY数据还没解析，直接交给下一个过滤器处理，一般是HttpDecryptFilter
         if (context.isParseComplete()) {
             HttpRequest request = context.getRequest();
             request.setContent(buffer);
@@ -82,13 +78,6 @@ public class HttpServerFilter extends IoFilterAdaptor {
         }
     }
 
-    @Override
-    public void filterWrite(NextFilter nextFilter, IoProcessor processor, IoBuffer buffer) throws Exception {
-        // 更新会话时间，避免当下载HTTP大文件时超时
-        processor.setActionTime(System.currentTimeMillis());
-        nextFilter.filterWrite(processor, buffer);
-    }
-
     /**
      * 数据发送完毕，重置上下文数据，方便在HTTP长连接中下次重新发起请求
      */
@@ -96,7 +85,7 @@ public class HttpServerFilter extends IoFilterAdaptor {
     public void channelSend(NextFilter nextFilter, IoProcessor processor, WriteRequest writeRequest) throws Exception {
         Context context = (Context) processor.getAttribute(FILTER_CONTEXT);
         if (context != null) {
-            if (context.getProtocol() == HTTP_PROTOCOL_1_0) {
+            if (context.getProtocol() == HttpConstants.HTTP_PROTOCOL_1_0) {
                 processor.close(true);
             }
             context.reset();
@@ -119,7 +108,11 @@ public class HttpServerFilter extends IoFilterAdaptor {
             doGenerateTemplateError(processor, cause);
         } catch (Throwable ignore) {
         }
-        super.exceptionCaught(nextFilter, processor, cause);
+        Context context = (Context) processor.getAttribute(FILTER_CONTEXT);
+        if (context != null) {
+            context.release();
+        }
+        nextFilter.exceptionCaught(processor, cause);
     }
 
     public void setTemplate(HttpTemplate template) {
@@ -161,7 +154,7 @@ public class HttpServerFilter extends IoFilterAdaptor {
          */
         private final HttpHeaderDecoder decoder;
 
-        private float protocol = HTTP_PROTOCOL_1_0;
+        private float protocol = HttpConstants.HTTP_PROTOCOL_1_0;
 
         public Context(SocketAddress remoteAddr, String charset, boolean lowerHeaderKey) throws IOException {
             this.request = new HttpRequest(remoteAddr);
@@ -190,8 +183,8 @@ public class HttpServerFilter extends IoFilterAdaptor {
          * @return 全部解析结束返回true
          * @throws Exception 解析有异常时抛出异常并在前端输出HTTP错误提示
          */
-        public boolean parseRequest(IoBuffer stream) throws Exception {
-            return decoder.parseRequest(stream);
+        public boolean parseRequest(IoBuffer buffer) throws Exception {
+            return decoder.parseRequest(buffer);
         }
 
         public void reset() {
@@ -362,7 +355,7 @@ public class HttpServerFilter extends IoFilterAdaptor {
             String protocol = request.getProtocol();
             int position = protocol.indexOf("/");
             if (position > 0) {
-                context.setProtocol(Parser.parseFloat(protocol.substring(position + 1), HTTP_PROTOCOL_1_0));
+                context.setProtocol(Parser.parseFloat(protocol.substring(position + 1), HttpConstants.HTTP_PROTOCOL_1_0));
             }
         }
 

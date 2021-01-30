@@ -39,6 +39,10 @@ public class Param implements Map<String, Object> {
         return builder().setObject(key, value);
     }
 
+    public static Param builder(Map<String, Object> value) {
+        return new Param(false, value);
+    }
+
     public Param() {
         this(false, null);
     }
@@ -51,7 +55,22 @@ public class Param implements Map<String, Object> {
         this(false, datas);
     }
 
+    public Param(Map<String, Object> datas) {
+        this(false, datas);
+    }
+
     public Param(boolean sync, Param datas) {
+        if (sync) {
+            this.datas = new ConcurrentHashMap<String, Object>();
+        } else {
+            this.datas = new HashMap<String, Object>();
+        }
+        if (datas != null) {
+            this.datas.putAll(datas);
+        }
+    }
+
+    public Param(boolean sync, Map<String, Object> datas) {
         if (sync) {
             this.datas = new ConcurrentHashMap<String, Object>();
         } else {

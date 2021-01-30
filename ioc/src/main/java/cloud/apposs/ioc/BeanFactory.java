@@ -1,7 +1,7 @@
 package cloud.apposs.ioc;
 
 import cloud.apposs.ioc.annotation.Component;
-import cloud.apposs.ioc.annotation.Inject;
+import cloud.apposs.ioc.annotation.Autowired;
 import cloud.apposs.ioc.annotation.Prototype;
 import cloud.apposs.util.AntPathMatcher;
 import cloud.apposs.util.CharsetUtil;
@@ -292,10 +292,10 @@ public final class BeanFactory {
 
     /**
      * IOC容器中类初始化，
-     * 默认用缺省构造方法，没有是判断构造方法是否是{@link Inject}注解进行构造方法反向注入
+     * 默认用缺省构造方法，没有是判断构造方法是否是{@link Autowired}注解进行构造方法反向注入
      * 参考：https://blog.csdn.net/qq_41737716/article/details/85596817
      * 注意：
-     * 1. {@link Inject}的构造方法参数所在的实现类必须要添加{@link Component}注解，已经由IOC容器管理了，
+     * 1. {@link Autowired}的构造方法参数所在的实现类必须要添加{@link Component}注解，已经由IOC容器管理了，
      * 2. IOC容器是无法解决类循环依赖问题的，底层通过之前扫描的{@link BeanDefinition}来初始化实例只会触发两个循环依赖的类彼此都找不到
      */
     @SuppressWarnings("unchecked")
@@ -312,7 +312,7 @@ public final class BeanFactory {
                     matchedConstructor = constructor;
                     break;
                 }
-                if (constructor.isAnnotationPresent(Inject.class)) {
+                if (constructor.isAnnotationPresent(Autowired.class)) {
                     matchedConstructor = constructor;
                 }
             }
@@ -336,10 +336,10 @@ public final class BeanFactory {
                     implementInstance = getBean(parameterType);
                 }
                 if (implementInstance == null) {
-                    throw new BeanCreationException("Inject method[" + parameterType + "] dependency not found");
+                    throw new BeanCreationException("Autowired method[" + parameterType + "] dependency not found");
                 }
                 if (implementInstance == null) {
-                    throw new BeanCreationException("Inject method[" + parameterType + "] dependency not found");
+                    throw new BeanCreationException("Autowired method[" + parameterType + "] dependency not found");
                 }
                 parameterArgs[j] = implementInstance;
             }
@@ -354,14 +354,14 @@ public final class BeanFactory {
     }
 
     /**
-     * 获取Bean对象中有{@link Inject}注解的字段并注入依赖的实现对象
+     * 获取Bean对象中有{@link Autowired}注解的字段并注入依赖的实现对象
      */
     private void doInjectField(Object beanObject, Class<?> beanClass) throws BeansException {
         // 获取 Bean 类中所有的字段（不包括父类中的方法）
         Field[] beanFields = beanClass.getDeclaredFields();
         for (int i = 0; i < beanFields.length; i++) {
             Field beanField = beanFields[i];
-            if (!beanField.isAnnotationPresent(Inject.class)) {
+            if (!beanField.isAnnotationPresent(Autowired.class)) {
                 continue;
             }
             // 获取 Bean 字段对应的接口
@@ -374,28 +374,28 @@ public final class BeanFactory {
                 implementInstance = getBean(fieldType);
             }
             if (implementInstance == null) {
-                throw new BeanCreationException("Inject field[" + beanField + "] dependency not found");
+                throw new BeanCreationException("Autowired field[" + beanField + "] dependency not found");
             }
             ReflectUtil.makeAccessible(beanField);
             try {
                 beanField.set(beanObject, implementInstance);
             } catch (IllegalArgumentException e) {
-                throw new BeanCreationException("Inject field[" + beanField + "] dependency invalid argument", e);
+                throw new BeanCreationException("Autowired field[" + beanField + "] dependency invalid argument", e);
             } catch (IllegalAccessException e) {
-                throw new BeanCreationException("Inject field[" + beanField + "] dependency access error", e);
+                throw new BeanCreationException("Autowired field[" + beanField + "] dependency access error", e);
             }
         }
     }
 
     /**
-     * 获取Bean对象中有{@link Inject}注解的方法并注入依赖的实现对象
+     * 获取Bean对象中有{@link Autowired}注解的方法并注入依赖的实现对象
      */
     private void doInjectMethod(Object beanObject, Class<?> beanClass) throws BeansException {
         // 获取 Bean 类中所有的字段（不包括父类中的方法）
         Method[] beanMethods = beanClass.getDeclaredMethods();
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
-            if (!beanMethod.isAnnotationPresent(Inject.class)) {
+            if (!beanMethod.isAnnotationPresent(Autowired.class)) {
                 continue;
             }
             // 获取 Bean 字段对应的接口
@@ -414,10 +414,10 @@ public final class BeanFactory {
                     implementInstance = getBean(parameterType);
                 }
                 if (implementInstance == null) {
-                    throw new BeanCreationException("Inject method[" + parameterType + "] dependency not found");
+                    throw new BeanCreationException("Autowired method[" + parameterType + "] dependency not found");
                 }
                 if (implementInstance == null) {
-                    throw new BeanCreationException("Inject method[" + parameterType + "] dependency not found");
+                    throw new BeanCreationException("Autowired method[" + parameterType + "] dependency not found");
                 }
                 parameterArgs[j] = implementInstance;
             }
@@ -426,9 +426,9 @@ public final class BeanFactory {
             try {
                 beanMethod.invoke(beanObject, parameterArgs);
             } catch (IllegalAccessException e) {
-                throw new BeanCreationException("Inject method[" + beanMethod + "] dependency access error", e);
+                throw new BeanCreationException("Autowired method[" + beanMethod + "] dependency access error", e);
             } catch (InvocationTargetException e) {
-                throw new BeanCreationException("Inject method[" + beanMethod + "] dependency access error", e);
+                throw new BeanCreationException("Autowired method[" + beanMethod + "] dependency access error", e);
             }
         }
     }

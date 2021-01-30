@@ -71,7 +71,12 @@ public class FormDataDectypt implements FormDecrypt {
     private int fieldStatus = FORM_DECRYPT_START;
 
     /**
-     * 数据解析缓冲区，提升性能，避免频繁的网络数据读取
+     * 最大接收的文件大小，小于0为不限制
+     */
+    private final long maxSize;
+
+    /**
+     * 数据解析缓冲区，提升性能，避免频繁的网络数据读取和内存分配
      */
     private byte[] currentBuffer;
     /**
@@ -93,7 +98,7 @@ public class FormDataDectypt implements FormDecrypt {
     private static final Boolean PARSE_FORM_COMPLETED = new Boolean(true);
 
     public FormDataDectypt(String contentType, String charset,
-                           int bufferSize, int threshold, File directory) throws Exception {
+                           int bufferSize, int threshold, File directory, long maxSize) throws Exception {
         if (StrUtil.isEmpty(contentType) || contentType.indexOf(";") == -1) {
             throw new HttpParseException(HttpStatus.HTTP_STATUS_400, "Content-Type not set");
         }
@@ -104,6 +109,7 @@ public class FormDataDectypt implements FormDecrypt {
 
         this.threshold = threshold;
         this.directory = directory;
+        this.maxSize = maxSize;
         byte[] boundaries = boundary.getBytes(charset);
 		int boundaryPrefixLength = HttpConstants.BOUNDARY_PREFIX.length;
         this.boundary = new byte[boundaries.length + boundaryPrefixLength];
@@ -137,9 +143,12 @@ public class FormDataDectypt implements FormDecrypt {
      * <PNG DATA HERE> -- [[FORM_READ_VALUE:doParseFormValue here]]
      * ------WebKitFormBoundaryrGKCBY7qhFd3TrwA--
      * </pre>
+     *
+     * @param request HTTP请求数据，
+     *                已经有EventLoop将原始数据读取了，接下来就是对该数据进行协议解析
      */
     @Override
-    public boolean parseForm(HttpRequest request) throws Exception {
+    public boolean parseForm(HttpRequest request) throws IOException {
         Boolean success = null;
         boolean readMore = true;
         IoBuffer buffer = request.getContent();
@@ -227,7 +236,7 @@ public class FormDataDectypt implements FormDecrypt {
      * 解析请求BOUNDARY，
      * 成功解析到BOUNDARY返回TRUE，数据还没彻底解析完返回NULL，否则返回FALSE
      */
-    private Boolean doParseBoundary(IoBuffer buffer) throws Exception {
+    private Boolean doParseBoundary(IoBuffer buffer) {
         // 还没读取到完整行，退出等待下次数据进来
         if (boundary.length > currentWriteBufferLength) {
             return null;
@@ -270,14 +279,14 @@ public class FormDataDectypt implements FormDecrypt {
      *
      * </pre>
      */
-    private Boolean doParseFormField(IoBuffer buffer) throws Exception {
+    private Boolean doParseFormField(IoBuffer buffer) throws IOException {
         // 定位表单字段是否已经以CRLFCRLF结尾
         Pair<Integer, Boolean> result = doGetFormFieldAvailableIndex();
         if (result == null) {
             return null;
         }
         // 开始解析表单字段
-        int avaiableIndex = result.first();
+        int avaiableIndex = result.key();
         for (int index = nextReadBufferIndex; index <= avaiableIndex; index++, nextReadBufferIndex++) {
             byte letter = currentBuffer[index];
             // 开始解析字段
@@ -315,7 +324,7 @@ public class FormDataDectypt implements FormDecrypt {
         // 数据解析结束
         try {
             // 是否在一开始查找时倒已经匹配到了结尾，如果是则代表已经解析结束了
-            boolean matchLine = result.second();
+            boolean matchLine = result.value();
             if (matchLine) {
                 fieldStatus = FORM_DECRYPT_START;
                 doAddFormField();
@@ -337,20 +346,20 @@ public class FormDataDectypt implements FormDecrypt {
         }
     }
 
-    private Boolean doParseFormValue(HttpRequest request, IoBuffer buffer) throws Exception {
+    private Boolean doParseFormValue(HttpRequest request, IoBuffer buffer) throws IOException {
         // 解析表单字段值
         Pair<Integer, Boolean> result = doGetFormValueAvailableIndex();
         if (result == null) {
             return null;
         }
-        int avaiableIndex = result.first();
+        int avaiableIndex = result.key();
         int offset = nextReadBufferIndex;
         int avaiable = avaiableIndex - offset + 1;
         currentValue.append(currentBuffer, offset, avaiable);
 
         try {
             // 表单数据已经是完整数据
-            Boolean complete = result.second();
+            Boolean complete = result.value();
             if (complete) {
                 String key = currentHeaders.get("name");
                 if (key == null) {
@@ -369,13 +378,13 @@ public class FormDataDectypt implements FormDecrypt {
         }
     }
 
-    private Boolean doParseFormFile(HttpRequest request) throws Exception {
+    private Boolean doParseFormFile(HttpRequest request) throws IOException {
         Pair<Integer, Boolean> result = doGetFormValueAvailableIndex();
         if (result == null) {
             return null;
         }
 
-        int avaiableIndex = result.first();
+        int avaiableIndex = result.key();
         int offset = nextReadBufferIndex;
         int avaiable = avaiableIndex - offset + 1;
         avaiable = avaiable > 0 ? avaiable : 0;
@@ -387,17 +396,24 @@ public class FormDataDectypt implements FormDecrypt {
         String filename = currentHeaders.get("filename");
 
         try {
-            // 表单数据已经是完整数据
-            Boolean complete = result.second();
+            HttpFormFile formFile = doGetFormFile(request, key, filename);
+            // 判断是否超过最大接收文件大小限制避免文件上传过大影响业务
+            if (maxSize > 0) {
+                if ((formFile.size() + avaiable) > maxSize) {
+                    throw new IOException("Over max file size " + maxSize + " of " + filename);
+                }
+            }
+            // 存储接收的文件字节数据
+            formFile.write(currentBuffer, offset, avaiable);
+
+            Boolean complete = result.value();
             if (complete) {
-                HttpFormFile formFile = doGetFormFile(request, key, filename);
-                formFile.write(currentBuffer, offset, avaiable);
+                // 表单数据已经是完整数据，指标指向下一个表单段
                 nextReadBufferIndex += avaiable + boundary.length;
                 currentHeaders.clear();
                 return complete;
             } else {
-                HttpFormFile formFile = doGetFormFile(request, key, filename);
-                formFile.write(currentBuffer, offset, avaiable);
+                // 还没读取完毕，退出等待接收下次网络数据
                 nextReadBufferIndex += avaiable;
                 return null;
             }
@@ -470,14 +486,14 @@ public class FormDataDectypt implements FormDecrypt {
                 }
                 // 全部匹配到CRLFCRLF，证明已经到达表单字段结尾
                 if (match == HttpConstants.HEADER_SEPARATOR.length) {
-                    Pair<Integer, Boolean> result = new Pair<Integer, Boolean>(index - 1, true);
+                    Pair<Integer, Boolean> result = Pair.build(index - 1, true);
                     return result;
                 }
             }
         }
         // 没有匹配上则最后以CRLFCRLF字节长度为保留位置，前面的数据先读取
         int avaiable = total - HttpConstants.HEADER_SEPARATOR.length;
-        return avaiable < 0 ? null : new Pair<Integer, Boolean>(avaiable, false);
+        return avaiable < 0 ? null : Pair.build(avaiable, false);
     }
 
     /**
@@ -512,11 +528,11 @@ public class FormDataDectypt implements FormDecrypt {
                     if (total > boundaryEnd) {
                         if (currentBuffer[boundaryEnd - 1] == HttpConstants.BOUNDARY_POSTFIX[0] &&
                                 currentBuffer[boundaryEnd] == HttpConstants.BOUNDARY_POSTFIX[1]) {
-                            Pair<Integer, Boolean> result = new Pair<Integer, Boolean>(start - 1, PARSE_FORM_COMPLETED);
+                            Pair<Integer, Boolean> result = Pair.build(start - 1, PARSE_FORM_COMPLETED);
                             return result;
                         }
                     }
-                    Pair<Integer, Boolean> result = new Pair<Integer, Boolean>(start - 1, true);
+                    Pair<Integer, Boolean> result = Pair.build(start - 1, true);
                     return result;
                 }
             }
@@ -527,7 +543,7 @@ public class FormDataDectypt implements FormDecrypt {
         if (avaiable < 0 || avaiable <= nextReadBufferIndex) {
             return null;
         }
-        return new Pair<Integer, Boolean>(avaiable, false);
+        return Pair.build(avaiable, false);
     }
 
     /**

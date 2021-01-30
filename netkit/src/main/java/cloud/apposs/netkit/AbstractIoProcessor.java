@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractIoProcessor implements IoProcessor {
-	public static final int DEFAULT_CONNECT_TIMEOUT = 2 * 1000;
+	public static final int DEFAULT_CONNECT_TIMEOUT = 5 * 1000;
 	public static final int DEFAULT_SEND_TIMEOUT = 60 * 1000;
 	public static final int DEFAULT_RECV_TIMEOUT = 60 * 1000;
 	
@@ -272,7 +272,15 @@ public abstract class AbstractIoProcessor implements IoProcessor {
 		event.setEvent(IoEvent.OP_WRITE);
 		return len;
 	}
-	
+
+	@Override
+	public void flush() {
+		// 如果有数据要发送，注册发送事件并唤醒EventLoop
+		if (!writeRequest.isEmpty()) {
+			IoEvent.registSelectionKeyEvent(event, key, IoEvent.OP_WRITE);
+		}
+	}
+
 	private void doFireFilterWrite(IoBuffer buffer) throws Exception {
 		try {
 			chain.fireFilterWrite(buffer);

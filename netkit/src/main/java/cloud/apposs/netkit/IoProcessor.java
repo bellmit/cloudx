@@ -139,6 +139,14 @@ public interface IoProcessor {
 
     long write(IoBuffer... bufs) throws IOException;
 
+    /**
+     * 立刻触发EventLoop发送操作，
+     * 主要服务于RxIo异步，
+     * 因为RxIo的异步性，当前Server所在的EventLoop是其中一个线程，但RxIo中的EventLoop又是另外一个线程，
+     * 所以不触发write写事件则当前Server的EventLoop线程是不会主动触发发送事件的
+     */
+    void flush();
+
     IoListenerSupport getListenerSupport();
 
     void setListenerSupport(IoListenerSupport listenerSupport);

@@ -23,7 +23,7 @@ public class HttpResponse {
 
     private String version = "HTTP/1.1";
     private HttpStatus status = HttpStatus.HTTP_STATUS_200;
-    private String server = "Http React Server/1.0.0";
+    private String server = HttpConstants.HTTP_SERVER_NAME;
     private String charset = "UTF-8";
 
     public HttpResponse(ServerHandlerContext context) {

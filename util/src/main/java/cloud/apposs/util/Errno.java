@@ -37,10 +37,16 @@ public class Errno {
     public static final Errno EARGUMENT = new Errno(2, "argument error");
     /** 数据已存在 */
     public static final Errno EALREADY_EXISTS = new Errno(3, "already exists error");
-    /** 服务为只读 */
+    /** 服务为只读，一般为服务在线迁移中 */
     public static final Errno EREADONLY = new Errno(4, "readonly error");
-    /** 请求不存在 */
-    public static final Errno ENOT_FOUND = new Errno(5, "request not found");
+    /** 请求不存在，一般为请求URL+METHOD未匹配 */
+    public static final Errno ENO_HANDLER = new Errno(5, "request not found");
+    /** 数据不存在，一般为请求数据不存在 */
+    public static final Errno ENOT_FOUND = new Errno(6, "data not found");
+    /** 不支持的操作，一般为实现类默认抛出不支持异常 */
+    public static final Errno EUNSUPPORTED_OPERATION = new Errno(7, "unsupported operation");
+    /** 触发了Guard熔断降级等机制给限制请求，业务可通过此错误码做前端产品功能降级 */
+    public static final Errno EBLOCK = new Errno(8, "request blocked");
 
     /**
      * 响应错误码

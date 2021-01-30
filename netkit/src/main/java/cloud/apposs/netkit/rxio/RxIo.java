@@ -49,6 +49,7 @@ public class RxIo<T> {
     /**
      * 将数组转换为 RxIo 对象并产生数据流
      */
+    @SuppressWarnings("unchecked")
     public static <T> RxIo<T> from(final T... array) {
         return create(new OnSubscribeFromArray<T>(array));
     }
@@ -65,6 +66,7 @@ public class RxIo<T> {
      * 调用结果会逐个触发{@link IoSubscriber#onNext(Object)}进行处理，
      * 所有请求结束后，无论成功还是失败，最终调用一次{@link IoSubscriber#onCompleted()}
      */
+    @SuppressWarnings("unchecked")
     public static <T> RxIo<T> merge(final RxIo<? extends T>... sequences) {
         return create(new OperateorMerge<T>(sequences));
     }
@@ -77,10 +79,18 @@ public class RxIo<T> {
      * 合并多个请求并行调用，
      * 调用结果会合并到List集合中并触发{@link IoSubscriber#onNext(Object)}进行处理
      */
+    @SuppressWarnings("unchecked")
     public static <T> RxIo<List<T>> mergeList(final RxIo<? extends T>... sequences) {
         return create(new OperateorMergeList<T>(sequences));
     }
 
+    /**
+     * 需要进行前置条件判断的多个RxIo串行执行，
+     * 下一个串行执行的RxIo流会根据上一个执行的任务来判断是否执行，如果上一个流执行不符合结果则解决False失败处理，
+     * 主要业务有：
+     * 1. 订单下单，多个子系统串行执行，依赖上一任务的执行结果来决定是否执行下一任务
+     * 2. 多子任务定时执行，下一个任务依赖上一个任务的执行结果
+     */
     public static <T> RxIo<Boolean> flat(final Iterable<? extends RxIo<? extends T>> sequences,
                                    final IoFunction<? super T, Boolean> predicate) {
         return create(new OperateorFlat<T>(sequences, predicate));
@@ -151,10 +161,18 @@ public class RxIo<T> {
     }
 
     /**
-     * 数据响应码操作，响应码为成功的数据进行正常流程处理，响应码为失败的则进入异常流程处理
+     * 数据响应码操作，
+     * 响应码为成功的数据进行正常流程处理，响应码为失败的则进入异常流程处理
      */
-    public final <R> RxIo<StandardResult> handle(final IoFunction<? super T, StandardResult> predicate) {
+    public final RxIo<StandardResult> handle(final IoFunction<? super T, StandardResult> predicate) {
         return create(new OnSubscribeHandle<T>(this, predicate));
+    }
+
+    /**
+     * 处理结果失败时的回滚操作，一般用于业务数据库操作失败时的异步回滚
+     */
+    public final RxIo<StandardResult> rollbackIfError(final IoFunction<StandardResult, StandardResult> predicate) {
+        return create(new OnSubscribeRollback<T>(this, predicate));
     }
 
     /**
